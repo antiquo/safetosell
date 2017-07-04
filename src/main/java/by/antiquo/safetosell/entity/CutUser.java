@@ -9,10 +9,6 @@ public class CutUser extends Entity {
     private String userLogin;
     private String userPic;
 
-    public CutUser(){
-
-    }
-
     public CutUser(int userId, UserRole userRole, String userLogin, String userPic){
         this.userId = userId;
         this.userRole = userRole;
