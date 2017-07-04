@@ -5,7 +5,7 @@ package by.antiquo.safetosell.entity;
  */
 public class CutUser extends Entity {
     private int userId;
-    private Role userRole;
+    private UserRole userRole;
     private String userLogin;
     private String userPic;
 
@@ -13,7 +13,7 @@ public class CutUser extends Entity {
 
     }
 
-    public CutUser(int userId, Role userRole, String userLogin, String userPic){
+    public CutUser(int userId, UserRole userRole, String userLogin, String userPic){
         this.userId = userId;
         this.userRole = userRole;
         this.userLogin = userLogin;
@@ -28,11 +28,11 @@ public class CutUser extends Entity {
         this.userId = userId;
     }
 
-    public Role getUserRole() {
+    public UserRole getUserRole() {
         return userRole;
     }
 
-    public void setUserRole(Role userRole) {
+    public void setUserRole(UserRole userRole) {
         this.userRole = userRole;
     }
 

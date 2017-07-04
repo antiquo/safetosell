@@ -10,7 +10,7 @@ public class User extends CutUser {
     private String userCity;
 
     public User(int userId, String userLogin, String userMail, String userNumber, String userPassword,
-                String userCity, Role userRole, String userPic) {
+                String userCity, UserRole userRole, String userPic) {
         super(userId, userRole, userLogin, userPic);
         this.userMail = userMail;
         this.userNumber = userNumber;
