@@ -1,7 +1,7 @@
 package by.antiquo.safetosell.entity;
 
 /**
- * Created by Anastasia on 03.07.2017.
+ * Created by Antiquo on 03.07.2017.
  */
 public class CutUser extends Entity {
     private int userId;
