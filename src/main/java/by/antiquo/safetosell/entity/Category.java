@@ -1,6 +1,6 @@
 package by.antiquo.safetosell.entity;
 
-public class Category {
+public class Category extends Entity {
     private int categoryId;
     private String categoryNameRU;
     private String categoryNameEN;
@@ -26,7 +26,6 @@ public class Category {
         this.categoryNameEN = categoryNameEN;
         this.categoryDesc = categoryDesc;
         this.categoryStatus = categoryStatus;
-        this.categoryPic = categoryPic;
     }
 
     public Category(String categoryNameRU, CategoryStatus categoryStatus) {

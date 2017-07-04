@@ -6,9 +6,6 @@ public enum CategoryStatus {
     TOP("top"),
     CLOSED("closed");
 
-    /**
-     * Created by Antiquo on 04.07.2017.
-     */
     private String categoryStatus;
 
     CategoryStatus(String categoryStatus) {

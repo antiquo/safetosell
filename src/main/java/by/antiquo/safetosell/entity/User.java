@@ -1,8 +1,5 @@
 package by.antiquo.safetosell.entity;
 
-/**
- * Created by Antiquo on 03.07.2017.
- */
 public class User extends CutUser {
     private String userMail;
     private String userNumber;

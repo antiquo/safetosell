@@ -6,9 +6,6 @@ public enum UserRole {
     MODERATOR("moderator"),
     BLOCKED("blocked");
 
-    /**
-     * Created by Antiquo on 03.07.2017.
-     */
     private String role;
 
     UserRole(String value) {

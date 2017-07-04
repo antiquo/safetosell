@@ -4,9 +4,6 @@ public enum OfferReason {
     SALE("sale"),
     EXCHANGE("exchange");
 
-    /**
-     * Created by Antiquo on 04.07.2017.
-     */
     private String reason;
 
     OfferReason (String reason) {
