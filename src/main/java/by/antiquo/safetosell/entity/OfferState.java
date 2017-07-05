@@ -8,7 +8,7 @@ public enum OfferState {
 
     private String state;
 
-    OfferReason (String state) {
+    OfferState (String state) {
         this.state = state;
     }
 
