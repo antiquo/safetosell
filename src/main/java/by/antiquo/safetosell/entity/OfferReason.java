@@ -14,7 +14,7 @@ public enum OfferReason {
         return this.reason;
     }
 
-    public static OfferReason getOfferReasonfromvalue(String value) {
+    public static OfferReason getOfferReasonFromValue(String value) {
         for (OfferReason reason: OfferReason.values()) {
             if (reason.reason.equalsIgnoreCase(value)) {
                 return reason;
