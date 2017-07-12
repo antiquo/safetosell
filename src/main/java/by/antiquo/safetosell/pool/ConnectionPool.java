@@ -1,116 +1,138 @@
 package by.antiquo.safetosell.pool;
 
-import java.sql.Connection;
+
+import by.antiquo.safetosell.dao.DaoException;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ConnectionPool {
-   /* private static final ConnectionPool instance = new ConnectionPool();
-    private static final String JDBC_URL = "db.jdbc_url";
-    private static final String DB_LOGIN = "db.login";
-    private static final String DB_PASSWORD = "db.password";
-    private static final String CONNECTION_COUNT = "db.connection_count";
+    private static Logger logger = LogManager.getLogger(ConnectionPool.class);
 
+    private static Lock lock = new ReentrantLock();
+    private volatile static boolean instanceCreated = false;
+    private static ConnectionPool instance = null;
     private static final String DB_PROPERTIES_FILE = "db";
-
+    private static final String CONNECTION_COUNT = "db.connection_count";
     private static final int MINIMAL_CONNECTION_COUNT = 5;
-
-    private BlockingQueue<Connection> freeConnections;
-    private BlockingQueue<Connection> givenConnections;
+    private BlockingQueue<ConnectionShell> freeConnections;
+    private BlockingQueue<ConnectionShell> givenConnections;
 
     private ConnectionPool() {
-
     }
 
     public static ConnectionPool getInstance() {
+        if (!instanceCreated) {
+            lock.lock();
+            try {
+                if (!instanceCreated) {
+                    instance = new ConnectionPool();
+                    instanceCreated = true;
+                }
+            } finally {
+                lock.unlock();
+            }
+        }
         return instance;
     }
 
-    public void init() throws ConnectionPoolException, InterruptedException {
+    public void init() throws ConnectionPoolException {
         ResourceBundle resourceBundle = ResourceBundle.getBundle(DB_PROPERTIES_FILE);
-        String driver = resourceBundle.getString(DRIVER);
-        String jdbcUrl = resourceBundle.getString(JDBC_URL);
-        String login = resourceBundle.getString(DB_LOGIN);
-        String password = resourceBundle.getString(DB_PASSWORD);
-
         int connectionCount = 0;
-
         try {
             connectionCount = Integer.parseInt(resourceBundle.getString(CONNECTION_COUNT));
         } catch (NumberFormatException e) {
-            // logging
+            logger.log(Level.ERROR, "Exception while reading connection number, minimal connection count was set");
             connectionCount = MINIMAL_CONNECTION_COUNT;
         }
 
         freeConnections = new ArrayBlockingQueue<>(connectionCount);
         givenConnections = new ArrayBlockingQueue<>(connectionCount);
 
-        try {
-            Class.forName(driver);
-
-            Connection connection = DriverManager.getConnection(jdbcUrl, login, password);
-
-            freeConnections.put(connection);
-        } catch (ClassNotFoundException e) {
-            throw new ConnectionPoolException("db.properties not exist", e);
-        } catch (SQLException e) {
-            throw new ConnectionPoolException("database error", e);
-        } catch (InterruptedException e) {
-            throw new ConnectionPoolException("pool error", e);
+        for (int i = 0; i < connectionCount; i++) {
+            try {
+                ConnectionShell connection = new ConnectionShell();
+                if (!connection.getAutoCommit()) {
+                    connection.setAutoCommit(true);
+                }
+                freeConnections.put(connection);
+            } catch (DaoException e) {
+                throw new ConnectionPoolException("Fatal error, not obtained connection ", e);
+            } catch (SQLException e) {
+                throw new ConnectionPoolException("Connection SetAutoCommitException", e);
+            } catch (InterruptedException e) {
+                throw new ConnectionPoolException("pool error", e);
+            }
         }
     }
 
-    public Connection takeConnection() throws ConnectionPoolException {
-        Connection connection;
+    public ConnectionShell takeConnection() throws ConnectionPoolException {
+        ConnectionShell connection;
         try {
             connection = freeConnections.take();
             givenConnections.put(connection);
         } catch (InterruptedException e) {
-            throw new ConnectionPoolException("take connection error", e);
+            throw new ConnectionPoolException("taking connection error", e);
         }
         return connection;
     }
 
-    public void returnConnection(Connection connection) throws ConnectionPoolException {
+
+    public void returnConnection(ConnectionShell connection) throws ConnectionPoolException {
         try {
-            if (connection == null || connection.isClosed() == true) {
-                throw new ConnectionPoolException("connection zakryt");
+            if (connection.isNull() || connection.isClosed()) {
+                throw new ConnectionPoolException("ConnectionWasLostWhileReturning Error");
+            }
+            try {
+                if (!connection.getAutoCommit()) {
+                    connection.setAutoCommit(true);
+                }
+                givenConnections.remove(connection);
+                freeConnections.put(connection);
+            } catch (SQLException e) {
+                logger.log(Level.ERROR, "Connection SetAutoCommitException", e);
+            } catch (InterruptedException e) {
+                logger.log(Level.ERROR, "Interrupted exception while putting connection into freeConnectionPool", e);
             }
         } catch (SQLException e) {
-            throw new ConnectionPoolException("problems database", e);
-        }
-        try {
-            connection.setAutoCommit(true);
-            givenConnections.remove(connection);
-            freeConnections.put(connection);
-        } catch (SQLException e) {
-            throw new ConnectionPoolException("connection error", e);
-        } catch (InterruptedException e) {
-            throw new ConnectionPoolException("connection error", e);
+            logger.log(Level.ERROR, "ConnectionIsClosed Error", e);
         }
     }
 
     public void destroyPool() {
-        for (int i = 0; i < givenConnections.size(); i++) {
-            Connection con = givenConnections.poll();
+        for (int i = 0; i < freeConnections.size(); i++) {
             try {
-                con.close();
+                ConnectionShell connection = freeConnections.take();
+                connection.closeConnection();
             } catch (SQLException e) {
-                // logging
+                logger.log(Level.ERROR, "DestroyPoolException in freeConnections", e);
+            } catch (InterruptedException e) {
+                logger.log(Level.ERROR, "Interrupted exception while taking connection from freeConnections for close connection and destroying pool", e);
             }
         }
-
-        for (int i = 0; i < freeConnections.size(); i++) {
-            Connection con = freeConnections.poll();
+        for (int i = 0; i < givenConnections.size(); i++) {
             try {
-                con.close();
+                ConnectionShell connection = givenConnections.take();
+                connection.closeConnection();
             } catch (SQLException e) {
-                // logging
+                logger.log(Level.ERROR, "DestroyPoolException in givenConnections", e);
+            } catch (InterruptedException e) {
+                logger.log(Level.ERROR, "Interrupted exception while taking connection from freeConnections for close connection and destroying pool", e);
             }
+        }
+        try {
+            DriverManager.deregisterDriver(new com.mysql.jdbc.Driver());
+        } catch (SQLException e) {
+            logger.log(Level.ERROR, e + " DriverManager wasn't found");
         }
     }
-**/
 }
+
