@@ -3,14 +3,18 @@ package by.antiquo.safetosell.entity;
 public class Ticket extends Offer {
     private int ticketId;
     private String ticketName;
+    private int ticketPrice;
     private String ticketDesc;
     private String ticketPic;
 
-    public Ticket(){}
 
-    public Ticket(int ticketId, String ticketName, String ticketDesc, String ticketPic){
+    public Ticket() {
+    }
+
+    public Ticket(int ticketId, String ticketName, int ticketPrice, String ticketDesc, String ticketPic) {
         this.ticketId = ticketId;
         this.ticketName = ticketName;
+        this.ticketPrice = ticketPrice;
         this.ticketDesc = ticketDesc;
         this.ticketPic = ticketPic;
     }
@@ -29,6 +33,14 @@ public class Ticket extends Offer {
 
     public void setTicketName(String ticketName) {
         this.ticketName = ticketName;
+    }
+
+    public int getTicketPrice() {
+        return ticketPrice;
+    }
+
+    public void setTicketPrice(int ticketPrice) {
+        this.ticketPrice = ticketPrice;
     }
 
     public String getTicketDesc() {
@@ -56,18 +68,20 @@ public class Ticket extends Offer {
         Ticket ticket = (Ticket) o;
 
         if (ticketId != ticket.ticketId) return false;
-        if (!ticketName.equals(ticket.ticketName)) return false;
-        if (!ticketDesc.equals(ticket.ticketDesc)) return false;
-        return ticketPic.equals(ticket.ticketPic);
+        if (ticketPrice != ticket.ticketPrice) return false;
+        if (ticketName != null ? !ticketName.equals(ticket.ticketName) : ticket.ticketName != null) return false;
+        if (ticketDesc != null ? !ticketDesc.equals(ticket.ticketDesc) : ticket.ticketDesc != null) return false;
+        return ticketPic != null ? ticketPic.equals(ticket.ticketPic) : ticket.ticketPic == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + ticketId;
-        result = 31 * result + ticketName.hashCode();
-        result = 31 * result + ticketDesc.hashCode();
-        result = 31 * result + ticketPic.hashCode();
+        result = 31 * result + (ticketName != null ? ticketName.hashCode() : 0);
+        result = 31 * result + ticketPrice;
+        result = 31 * result + (ticketDesc != null ? ticketDesc.hashCode() : 0);
+        result = 31 * result + (ticketPic != null ? ticketPic.hashCode() : 0);
         return result;
     }
 
@@ -76,6 +90,7 @@ public class Ticket extends Offer {
         return "Ticket{ " +
                 "ticketId=" + ticketId +
                 ", ticketName='" + ticketName +
+                ", ticketPrice='" + ticketPrice +
                 ", ticketDesc='" + ticketDesc +
                 ", ticketPic='" + ticketPic +
                 " }";

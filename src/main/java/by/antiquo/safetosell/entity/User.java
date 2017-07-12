@@ -5,14 +5,16 @@ public class User extends CutUser {
     private String userNumber;
     private String userPassword;
     private String userCity;
+    private int userDiscount;
 
     public User(int userId, String userLogin, String userMail, String userNumber, String userPassword,
-                String userCity, UserRole userRole, String userPic) {
+                String userCity, UserRole userRole, String userPic, int userDiscount) {
         super(userId, userRole, userLogin, userPic);
         this.userMail = userMail;
         this.userNumber = userNumber;
         this.userPassword = userPassword;
         this.userCity = userCity;
+        this.userDiscount = userDiscount;
     }
 
     public User(String userLogin, String userMail, String userNumber, String userPassword) {
@@ -62,6 +64,13 @@ public class User extends CutUser {
         this.userCity = userCity;
     }
 
+    public int getUserDiscount() {
+        return userDiscount;
+    }
+
+    public void setUserDiscount(int userDiscount) {
+        this.userDiscount = userDiscount;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -71,19 +80,21 @@ public class User extends CutUser {
 
         User user = (User) o;
 
-        if (userMail != null ? !userMail.equals(user.userMail) : user.userMail != null) return false;
-        if (userNumber != null ? !userNumber.equals(user.userNumber) : user.userNumber != null) return false;
-        if (userPassword != null ? !userPassword.equals(user.userPassword) : user.userPassword != null) return false;
+        if (userDiscount != user.userDiscount) return false;
+        if (!userMail.equals(user.userMail)) return false;
+        if (!userNumber.equals(user.userNumber)) return false;
+        if (!userPassword.equals(user.userPassword)) return false;
         return userCity != null ? userCity.equals(user.userCity) : user.userCity == null;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (userMail != null ? userMail.hashCode() : 0);
-        result = 31 * result + (userNumber != null ? userNumber.hashCode() : 0);
-        result = 31 * result + (userPassword != null ? userPassword.hashCode() : 0);
+        result = 31 * result + userMail.hashCode();
+        result = 31 * result + userNumber.hashCode();
+        result = 31 * result + userPassword.hashCode();
         result = 31 * result + (userCity != null ? userCity.hashCode() : 0);
+        result = 31 * result + userDiscount;
         return result;
     }
 
