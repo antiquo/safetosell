@@ -1,8 +1,9 @@
 package by.antiquo.safetosell.entity;
 
 public enum UserRole {
-    ADMIN("admin"),
+    GUEST("guest"),
     USER("user"),
+    ADMIN("admin"),
     MODERATOR("moderator"),
     BLOCKED("blocked");
 
