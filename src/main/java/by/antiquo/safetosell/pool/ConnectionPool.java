@@ -1,11 +1,9 @@
 package by.antiquo.safetosell.pool;
 
-
-import by.antiquo.safetosell.dao.DaoException;
+import by.antiquo.safetosell.dao.exception.DaoException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
