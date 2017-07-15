@@ -1,12 +1,13 @@
 package by.antiquo.safetosell.dao.abstr;
 
+import by.antiquo.safetosell.dao.exception.DaoException;
 import by.antiquo.safetosell.entity.User;
 
 import java.util.List;
 
 
 public interface UserDao {
-    void registerNewUser(String userMail, String userNumber, String userPassword);
+    void registerNewUser(String userMail, String userNumber, String userPassword) throws DaoException;
    /* User autorizeUser(String userMail, String password);
     void blockUserById(String userId);
     void blockUser(String userNumberOrMail);
