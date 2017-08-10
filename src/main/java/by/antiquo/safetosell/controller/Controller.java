@@ -1,5 +1,8 @@
 package by.antiquo.safetosell.controller;
 
+import by.antiquo.safetosell.command.Command;
+import by.antiquo.safetosell.command.client.CommandHelper;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +26,8 @@ public class Controller extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String commandName = request.getParameter(COMMAND);
-      /*  Command command = CommandHelper.getInstance().getCommand(commandName);
-        command.execute(request, response);*/
+        Command command = CommandHelper.getInstance().getCommand(commandName);
+        command.execute(request, response);
     }
 }
+
